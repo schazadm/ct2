@@ -1,2 +1,5 @@
 .vscode/
 RTE/
+build/
+*.uvguix.SM
+*.scvd
