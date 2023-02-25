@@ -134,11 +134,11 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>-1</DriverSelection>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -404,6 +404,21 @@
               <FileType>1</FileType>
               <FilePath>.\app\lcd.c</FilePath>
             </File>
+            <File>
+              <FileName>dice_counter.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\app\dice_counter.h</FilePath>
+            </File>
+            <File>
+              <FileName>lcd.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\app\lcd.h</FilePath>
+            </File>
+            <File>
+              <FileName>statistics.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\app\statistics.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -491,7 +506,7 @@
       </component>
     </components>
     <files>
-      <file attr="config" category="source" name="Device\Source\datainit_ctboard.s" version="4.0.3">
+      <file attr="config" category="source" name="Device\Source\datainit_ctboard.s" version="4.0.1">
         <instance index="0">RTE\Device\CT_Board_HS14_M0\datainit_ctboard.s</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="InES" Cversion="4.0.3" condition="SYSTEM_M0"/>
         <package name="CTBoard14_DFP" schemaVersion="1.1" url="https://ennis.zhaw.ch/pack/" vendor="InES" version="4.0.3"/>
@@ -499,7 +514,7 @@
           <targetInfo name="Target 1"/>
         </targetInfos>
       </file>
-      <file attr="config" category="source" name="Device\Source\startup_ctboard.s" version="4.0.3">
+      <file attr="config" category="source" name="Device\Source\startup_ctboard.s" version="4.0.1">
         <instance index="0">RTE\Device\CT_Board_HS14_M0\startup_ctboard.s</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="InES" Cversion="4.0.3" condition="SYSTEM_M0"/>
         <package name="CTBoard14_DFP" schemaVersion="1.1" url="https://ennis.zhaw.ch/pack/" vendor="InES" version="4.0.3"/>
@@ -507,7 +522,7 @@
           <targetInfo name="Target 1"/>
         </targetInfos>
       </file>
-      <file attr="config" category="source" name="Device\Source\system_ctboard.c" version="4.0.3">
+      <file attr="config" category="source" name="Device\Source\system_ctboard.c" version="4.0.1">
         <instance index="0">RTE\Device\CT_Board_HS14_M0\system_ctboard.c</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="InES" Cversion="4.0.3" condition="SYSTEM_M0"/>
         <package name="CTBoard14_DFP" schemaVersion="1.1" url="https://ennis.zhaw.ch/pack/" vendor="InES" version="4.0.3"/>

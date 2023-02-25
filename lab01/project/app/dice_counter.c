@@ -25,7 +25,21 @@ static uint8_t dice_counter = 1;
 
 /// STUDENTS: To be programmed
 
+void dice_counter_increment(void)
+{
+    if (dice_counter >= NR_OF_DICE_VALUES)
+    {
+        dice_counter = 1;
+    }
+    else
+    {
+        dice_counter++;
+    }
+}
 
-
+uint8_t dice_counter_read(void)
+{
+    return dice_counter;
+}
 
 /// END: To be programmed

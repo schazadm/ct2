@@ -16,22 +16,52 @@
 
 /* standard includes */
 #include <stdio.h>
+#include <string.h>
 
 /* user includes */
 #include "lcd.h"
 #include "reg_ctboard.h"
 
 /* macros */
-#define LCD_ADDR_LINE1      0u
-#define LCD_ADDR_LINE2      20u
+#define LCD_ADDR_LINE1 0u
+#define LCD_ADDR_LINE2 20u
 
 #define NR_OF_CHAR_PER_LINE 20u
 
-#define LCD_CLEAR           "                    "
+#define LCD_CLEAR "                    "
+#define TOTAL_THROW_TEXT "total throws"
 
 /// STUDENTS: To be programmed
+void write_string_to_lcd(uint8_t slot_nr_start, char string[])
+{
+    for (uint8_t i = 0; i < strlen(string); i++, slot_nr_start++)
+    {
+        CT_LCD->ASCII[slot_nr_start] = string[i];
+    }
+}
 
+void lcd_write_value(uint8_t slot_nr, uint8_t value)
+{
+    char buffer[3];
+    snprintf(buffer, 3, "%d", value);
+    write_string_to_lcd(--slot_nr * 3u, buffer);
+}
 
+void lcd_write_total(uint8_t total_value)
+{
+    char buffer[5];
+    write_string_to_lcd(LCD_ADDR_LINE2, TOTAL_THROW_TEXT);
+    snprintf(buffer, 5, "%d", total_value);
+    write_string_to_lcd(LCD_ADDR_LINE2 + 15u, buffer);
+}
 
+void hal_ct_lcd_clear(void)
+{
+    write_string_to_lcd(LCD_ADDR_LINE1, LCD_CLEAR);
+    write_string_to_lcd(LCD_ADDR_LINE2, LCD_CLEAR);
+    CT_LCD->BG.GREEN = 65535;
+    CT_LCD->BG.RED = 0;
+    CT_LCD->BG.BLUE = 0;
+}
 
 /// END: To be programmed

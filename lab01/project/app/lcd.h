@@ -23,6 +23,8 @@
 
 /* function declarations */
 
+void write_string_to_lcd(uint8_t slot_nr_start, char string[]);
+
 /*
  * \brief  Writes 'value' to the indicated 'position' on the lcd
  * 
