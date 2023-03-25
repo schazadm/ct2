@@ -19,14 +19,18 @@
 #include "hal_spi.h"
 #include "hal_sbuf.h"
 
-#define ACK_CHAR         (uint8_t)0x06
-#define DC1_CHAR         (uint8_t)0x11
-#define DC2_CHAR         (uint8_t)0x12
-#define ESC_CHAR         (uint8_t)0x1B
-#define ONE_CHAR         (uint8_t)0x01
+#define ACK_CHAR (uint8_t)0x06
+#define DC1_CHAR (uint8_t)0x11
+#define DC2_CHAR (uint8_t)0x12
+#define ESC_CHAR (uint8_t)0x1B
+#define ONE_CHAR (uint8_t)0x01
 
 #define NOTHING_RECEIVED (uint8_t)0
-enum { SUCCESS = 0, ERRORCODE = 1 };
+enum
+{
+	SUCCESS = 0,
+	ERRORCODE = 1
+};
 
 /* ------------------------------------------------------------------
  * -- Function prototypes
@@ -44,8 +48,8 @@ static void send_read_display_buffer_request(void);
  */
 void init_display_interface(void)
 {
-    hal_spi_init();
-    hal_sbuf_init();
+	hal_spi_init();
+	hal_sbuf_init();
 }
 
 /*
@@ -53,43 +57,38 @@ void init_display_interface(void)
  */
 uint8_t read_display_buffer(uint8_t *readBuffer)
 {
-    /// STUDENTS: To be programmed
-	
-		uint8_t length;
-    uint8_t x;
-    uint8_t bcc = 0;
+	/// STUDENTS: To be programmed
 
-    send_read_display_buffer_request(); //
+	if (!hal_sbuf_get_state())
+	{
+		return NOTHING_RECEIVED;
+	}
 
-    if (hal_spi_read_write(0x00) == ACK_CHAR) { // if cant write
-        return 0; // return 0
-    }
-    if(hal_sbuf_get_state() == 0) { // check if data to be sent
-        return 0; // if no data to be sent, return 0
-    }
-    bcc += hal_spi_read_write(0x00); //
-    length = hal_spi_read_write(0x00); // write character
-    bcc += length;
-    for(x = 0; x < length; x++) {
-        readBuffer[x] = hal_spi_read_write(0x00);
-        bcc += readBuffer[x];
-    }
+	send_read_display_buffer_request();
 
-    if (readBuffer[3] == 1) {
-        readBuffer[3] = 2;
-    } else {
-        readBuffer[3] = 1;
-    }
+	if (hal_spi_read_write(0x00) != ACK_CHAR)
+	{
+		return NOTHING_RECEIVED;
+	}
 
-    // Check if bcc correct
-    if(bcc % 256 != hal_spi_read_write(0x00)) {
-        return 0;
-    }
-    // return amount of characters written
-    return length;
+	if (hal_spi_read_write(0x00) != DC1_CHAR)
+	{
+		return NOTHING_RECEIVED;
+	}
 
+	uint8_t length = hal_spi_read_write(0x00);
 
-    /// END: To be programmed
+	for (uint8_t i = 0; i < length; i++)
+	{
+		uint8_t result = hal_spi_read_write(0x00);
+		readBuffer[i] = result;
+	}
+
+	hal_spi_read_write(0x00);
+
+	return length;
+
+	/// END: To be programmed
 }
 
 /*
@@ -97,45 +96,39 @@ uint8_t read_display_buffer(uint8_t *readBuffer)
  */
 uint8_t write_cmd_to_display(const uint8_t *cmdBuffer, uint8_t length)
 {
-    /// STUDENTS: To be programmed
+	/// STUDENTS: To be programmed
+	uint8_t bcc = 0;
 
-		//  Setze das Sendepaket gem?ss der Praktikumsanleitung S.2mit dem  *cmdBuffer
-    //	zusammen, siehe auch lcd.io.h
-    uint8_t x;
-    uint8_t response;
-    uint8_t bcc = 0;
+	// Plus DC1 = 0X1
+	hal_spi_read_write(DC1_CHAR); // DC1 = 0X11
+	bcc += DC1_CHAR;			  // Plus erster Character
 
-    // Sendepaket Overhead
+	// Plus Length = ESC + Länge Befehlszeichenfolgenlänge (*cmdBuffer)
+	hal_spi_read_write(length + 1);
+	bcc += (length + 1);
 
-    // Plus DC1 = 0X1
-    hal_spi_read_write(DC1_CHAR); // DC1 = 0X11
-    bcc += DC1_CHAR; // Plus erster Character
+	// Plus  ESC = 0X1B
+	hal_spi_read_write(ESC_CHAR);
+	bcc += ESC_CHAR;
 
-    // Plus Length = ESC + L?nge Befehlszeichenfolgenl?nge (*cmdBuffer)
-    hal_spi_read_write(length + 1);
-    bcc += (length + 1);
+	for (uint8_t x = 0; x < length; x++)
+	{
+		hal_spi_read_write(cmdBuffer[x]);
+		bcc += cmdBuffer[x];
+	}
 
-    //Plus  ESC = 0X1B
-    hal_spi_read_write(ESC_CHAR);
-    bcc += ESC_CHAR;
+	// Sende Prüfsumme
+	hal_spi_read_write(bcc);
 
-    for(x = 0; x < length; x++) {
-        hal_spi_read_write(cmdBuffer[x]);
-        bcc += cmdBuffer[x];
-    }
+	// Wenn ACK = 0X06
+	if (hal_spi_read_write(0x00) == ACK_CHAR)
+	{
+		return SUCCESS;
+	}
+	// Wenn ACK != 0X06
+	return ERRORCODE;
 
-    // Sende Pr?fsumme
-    hal_spi_read_write(bcc % 256);
-    response = hal_spi_read_write(0x00);
-    // Wenn ACK = 0X06
-    if(response == ACK_CHAR) {
-        return SUCCESS;
-    }
-    // Wenn ACK != 0X06
-    return ERRORCODE;
-
-
-    /// END: To be programmed
+	/// END: To be programmed
 }
 
 /*
@@ -144,13 +137,14 @@ uint8_t write_cmd_to_display(const uint8_t *cmdBuffer, uint8_t length)
  */
 static void send_read_display_buffer_request()
 {
-    /// STUDENTS: To be programmed
+	/// STUDENTS: To be programmed
 
-		hal_spi_read_write(DC2_CHAR);
-    hal_spi_read_write(ONE_CHAR);
-    hal_spi_read_write(0x53);
-    hal_spi_read_write(0x66 % 256);
+	hal_spi_read_write(DC2_CHAR);
+	hal_spi_read_write(ONE_CHAR);
+	uint8_t charS = 'S';
+	hal_spi_read_write(charS);
+	uint8_t bcc = DC2_CHAR + ONE_CHAR + charS;
+	hal_spi_read_write(bcc);
 
-
-    /// END: To be programmed
+	/// END: To be programmed
 }

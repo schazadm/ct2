@@ -93,7 +93,8 @@ uint8_t print_text_on_display(uint16_t x_position,
     cmd_buffer[4] = y_position & 0xFF;
     cmd_buffer[5] = (y_position & 0xFF00) >> 8;
 
-    for (i = 0; text[i] != 0 && i < 254; i++) {
+    for (i = 0; text[i] != 0 && i < 254; i++)
+    {
         cmd_buffer[i + 6] = text[i];
     }
 
@@ -127,7 +128,8 @@ uint8_t set_font_color(uint8_t font_color,
     uint8_t cmd_buffer[10];
 
     // accept only values supported by display
-    if (font_color > 32 || background_color > 32) {
+    if (font_color > 32 || background_color > 32)
+    {
         return 1;
     }
 
@@ -148,7 +150,8 @@ uint8_t set_display_color(uint8_t font_color,
     uint8_t cmd_buffer[10];
 
     // accept only values supported by display
-    if (font_color > 32 || background_color > 32) {
+    if (font_color > 32 || background_color > 32)
+    {
         return 1;
     }
 
