@@ -28,21 +28,16 @@
 /* user includes */
 #include "timer.h"
 
-
 /* -- Macros used as by student code
  * ------------------------------------------------------------------------- */
 
 /// STUDENTS: To be programmed
 
-
-
-
 /// END: To be programmed
 
 /* -- Function prototypes
  * ------------------------------------------------------------------------- */
- void TIM4_IRQHandler(void);
- 
+void TIM4_IRQHandler(void);
 
 /* -- global variables visible only within this module
  * ------------------------------------------------------------------------- */
@@ -55,24 +50,34 @@ static uint16_t cycle_counter_4bit = 0;
 
 int main(void)
 {
-    /// STUDENTS: To be programmed
+  /// STUDENTS: To be programmed
 
+  tim3_init();
+  tim4_init();
 
+  while (1)
+  {
+    // mit maskierung 0xF, da uns nur die ersten 4 bits interesiert
+    uint16_t red_channel = CT_DIPSW->BYTE.S7_0 & 0xF;
+    uint16_t green_channel = CT_DIPSW->BYTE.S15_8 & 0xF;
+    uint16_t blue_channel = CT_DIPSW->BYTE.S23_16 & 0xF;
 
+    tim3_set_compare_register(PWM_CH1, red_channel);
+    tim3_set_compare_register(PWM_CH2, green_channel);
+    tim3_set_compare_register(PWM_CH3, blue_channel);
+  }
 
-    /// END: To be programmed
+  /// END: To be programmed
 }
-
 
 /* -- Interrupt service routine
  * ------------------------------------------------------------------------- */
 
 void TIM4_IRQHandler(void)
 {
-    /// STUDENTS: To be programmed
+  /// STUDENTS: To be programmed
 
+  
 
-
-
-    /// END: To be programmed
+  /// END: To be programmed
 }

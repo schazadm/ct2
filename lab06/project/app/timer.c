@@ -19,38 +19,32 @@
 /* user includes */
 #include "timer.h"
 
-
 /* -- Macros
  * ------------------------------------------------------------------------- */
 
 #define PERIPH_GPIOB_ENABLE (0x00000002)
-#define PERIPH_TIM3_ENABLE  (0x00000002)
-#define PERIPH_TIM4_ENABLE  (0x00000004)
+#define PERIPH_TIM3_ENABLE (0x00000002)
+#define PERIPH_TIM4_ENABLE (0x00000004)
 
 /* Configuring pins used for PWM: PA.0, PA.4, PA.5 */
-#define GPIOB_MODE_AF      (0x00000a02)
-#define GPIOB_MODE_CLEAR   (0xfffff0f0)
+#define GPIOB_MODE_AF (0x00000a02)
+#define GPIOB_MODE_CLEAR (0xfffff0f0)
 
 #define GPIOB_SPEED_100MHZ (0x00000f03)
-#define GPIOB_SPEED_CLEAR  (0xfffff0f0)
+#define GPIOB_SPEED_CLEAR (0xfffff0f0)
 
-#define GPIOB_AF_TIM3      (0x00220002)
-#define GPIOB_AF_CLEAR     (0xff00fff0)
-
+#define GPIOB_AF_TIM3 (0x00220002)
+#define GPIOB_AF_CLEAR (0xff00fff0)
 
 /* -- Macros for timer configuration
  * ------------------------------------------------------------------------- */
-#define NVIC_IRQ_TIM4 (0x40000000)                  // NVIC mask for interrupt
-#define TIM4_IRQ_UIF  (0x00000001)                  // TIM4 mask for update irq flag
+#define NVIC_IRQ_TIM4 (0x40000000) // NVIC mask for interrupt
+#define TIM4_IRQ_UIF (0x00000001)  // TIM4 mask for update irq flag
 
 /* Add additional macros as used by your code */
 /// STUDENTS: To be programmed
 
-
-
-
 /// END: To be programmed
-
 
 /* Public function definitions
  * ------------------------------------------------------------------------- */
@@ -79,18 +73,32 @@ void tim3_init(void)
        for the basic timer modes used in this lab */
 
     TIM3->CR2 = 0x0000;
-    TIM3->SMCR = 0x0000;                            // selects CK_INT as source
-    TIM3->DIER = 0x0000;                            // disables all interrupts
+    TIM3->SMCR = 0x0000; // selects CK_INT as source
+    TIM3->DIER = 0x0000; // disables all interrupts
 
     /* add specific configuration for timer3 */
     /// STUDENTS: To be programmed
 
+    TIM3->CR1 = 0x0000; // upcounter is 0
+		
+		// 84000000 / 200 = 420000
+		// 420000 / 7 = 60000
+    TIM3->PSC = (7-1);
+    TIM3->ARR = (60000-1);
 
+    // Set OUTPUT COMPARE MODE to MODE 1
+    TIM3->CCMR1 |= 0x6 << 12 | 0x6 << 4;
+    TIM3->CCMR2 |= 0x6 << 4;
 
+    // capture/compare enable register outputs der drei compare channels
+    TIM3->CCER = 0x0;
+    TIM3->CCER = 0x1 << 8 | 0x1 << 4 | 0x1;
+
+    // Counter enabled
+    TIM3->CR1 |= 0x1; // set true
 
     /// END: To be programmed
 }
-
 
 /*
  * See header file
@@ -103,13 +111,22 @@ void tim4_init(void)
     /* initialize timer registers to default values; the values are suitable
        for the basic timer modes used in this lab */
     TIM4->CR2 = 0x0000;
-    TIM4->SMCR = 0x0000;                            // selects CK_INT as source
+    TIM4->SMCR = 0x0000; // selects CK_INT as source
 
     /* add specific configuration for timer4 */
     /// STUDENTS: To be programmed
 
-
-
+    // PRESCALER
+    TIM4->PSC = 8400u; // 10 kHz Zählschritte auf 84 Mhz, 8400(dec) = 20D0(hex)-1=20CF(weil von 0 gezählt)
+    // AUTOR RELOAD REGISTER:
+    TIM4->ARR = 10000u; // 0x2710; // 10khz Zählschritt auf 1s = 10000(dec) = 2710(hex)
+    // COMPARE REGISTER
+    TIM4->CR1 = 0x0;       // set to default 0x0
+    TIM4->CR1 |= 0x1 << 4; // 4th bit is downcounter
+    // UIE Update interrupt enable and disables all other interrupts
+    TIM4->DIER = 0x0001; // enable UIE, disable all other interrupts
+    // Counter enabled
+    TIM4->CR1 |= 0x1; // set true
 
     /// END: To be programmed
 
@@ -117,15 +134,13 @@ void tim4_init(void)
     NVIC->ISER0 |= NVIC_IRQ_TIM4;
 }
 
-
 /*
  * See header file
  */
 void tim4_reset_uif(void)
 {
-    TIM4->SR &= (uint32_t) ~TIM4_IRQ_UIF;
+    TIM4->SR &= (uint32_t)~TIM4_IRQ_UIF;
 }
-
 
 /*
  * See header file
@@ -134,9 +149,24 @@ void tim3_set_compare_register(pwm_channel_t channel, uint16_t value)
 {
     /// STUDENTS: To be programmed
 
+    // skalierer
+    value *= 4000;
 
-
+    switch (channel)
+    {
+    case PWM_CH1:
+        TIM3->CCR1 = value;
+        break;
+    case PWM_CH2:
+        TIM3->CCR2 = value;
+        break;
+    case PWM_CH3:
+        TIM3->CCR3 = value;
+        break;
+    case PWM_CH4:
+        TIM3->CCR4 = value;
+        break;
+    }
 
     /// END: To be programmed
 }
-
