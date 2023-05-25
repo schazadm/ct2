@@ -168,7 +168,7 @@ int main(void)
 void TIM2_IRQHandler(void)
 {
     /// STUDENTS: To be programmed
-		uint16_t timer_val = TIM2->CNT;
+		uint32_t timer_val = TIM2->CNT;
     hal_timer_irq_clear(TIM2, HAL_TIMER_IRQ_UE);
     // increase interrupt counter
     tim2_interrupt_counter++;
